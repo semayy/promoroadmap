@@ -1,0 +1,869 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Hava Kuvvetleri Promosyon Seti - Proje Panosu</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        airforce: {
+                            100: '#e0e7ff',
+                            300: '#93c5fd',
+                            500: '#3b82f6',
+                            700: '#1d4ed8',
+                            900: '#0f244a',
+                            dark: '#0a162e'
+                        },
+                        metal: {
+                            light: '#cbd5e1',
+                            DEFAULT: '#94a3b8',
+                            dark: '#475569'
+                        },
+                        gold: {
+                            DEFAULT: '#d4af37',
+                            dark: '#aa8c2c'
+                        }
+                    },
+                    fontFamily: {
+                        sans: ['Inter', 'system-ui', 'sans-serif'],
+                        serif: ['Merriweather', 'Georgia', 'serif'],
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Merriweather:ital,wght@0,400;0,700;1,400&display=swap');
+        body { font-family: 'Inter', sans-serif; background-color: #f8fafc; }
+        .tab-content { display: none; }
+        .tab-content.active { display: block; animation: fadeIn 0.3s ease-in-out; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+        
+        ::-webkit-scrollbar { width: 8px; }
+        ::-webkit-scrollbar-track { background: #f1f1f1; }
+        ::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 4px; }
+        ::-webkit-scrollbar-thumb:hover { background: #94a3b8; }
+
+        .quote-card { transition: all 0.2s ease; cursor: pointer; }
+        .quote-card:hover { transform: translateY(-2px); box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1); border-color: #93c5fd; }
+        .copy-overlay { opacity: 0; transition: opacity 0.2s ease; }
+        .quote-card:hover .copy-overlay { opacity: 1; }
+        
+        #toast {
+            visibility: hidden; min-width: 250px; background-color: #10b981; color: #fff;
+            text-align: center; border-radius: 8px; padding: 12px; position: fixed; z-index: 50;
+            left: 50%; bottom: 30px; transform: translateX(-50%); font-size: 14px; font-weight: 500;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+        }
+        #toast.show { visibility: visible; animation: fadein 0.5s, fadeout 0.5s 2.5s; }
+        @keyframes fadein { from { bottom: 0; opacity: 0; } to { bottom: 30px; opacity: 1; } }
+        @keyframes fadeout { from { bottom: 30px; opacity: 1; } to { bottom: 0; opacity: 0; } }
+    </style>
+</head>
+<body class="text-slate-800 flex h-screen overflow-hidden">
+
+    <!-- Sidebar -->
+    <aside class="w-64 bg-airforce-dark text-white flex flex-col h-full hidden md:flex shadow-2xl relative z-20">
+        <div class="p-6 border-b border-slate-700">
+            <h1 class="text-xl font-bold tracking-wider text-airforce-300">
+                <i class="fa-solid fa-plane-departure mr-2"></i> ONSCALA
+            </h1>
+            <p class="text-xs text-slate-400 mt-2 uppercase tracking-widest">HKK Promosyon Projesi</p>
+        </div>
+        
+        <nav class="flex-1 p-4 space-y-2 overflow-y-auto">
+            <button onclick="switchTab('dashboard')" class="tab-btn w-full flex items-center p-3 rounded-lg bg-airforce-700 text-white transition-colors text-left" data-target="dashboard">
+                <i class="fa-solid fa-chart-pie w-6"></i> Genel Bakış
+            </button>
+            <button onclick="switchTab('roadmap')" class="tab-btn w-full flex items-center p-3 rounded-lg hover:bg-slate-800 text-slate-300 transition-colors text-left" data-target="roadmap">
+                <i class="fa-solid fa-route w-6"></i> Yol Haritası
+            </button>
+            <button onclick="switchTab('design-system')" class="tab-btn w-full flex items-center p-3 rounded-lg hover:bg-slate-800 text-slate-300 transition-colors text-left" data-target="design-system">
+                <i class="fa-solid fa-palette w-6"></i> Marka Kimliği
+            </button>
+            <button onclick="switchTab('asset-tracker')" class="tab-btn w-full flex items-center p-3 rounded-lg hover:bg-slate-800 text-slate-300 transition-colors text-left" data-target="asset-tracker">
+                <i class="fa-solid fa-list-check w-6"></i> Dosya Takibi
+            </button>
+            <button onclick="switchTab('products')" class="tab-btn w-full flex items-center p-3 rounded-lg hover:bg-slate-800 text-slate-300 transition-colors text-left" data-target="products">
+                <i class="fa-solid fa-box-open w-6"></i> Üretim & Envanter
+            </button>
+            <button onclick="switchTab('quotes')" class="tab-btn w-full flex items-center p-3 rounded-lg hover:bg-slate-800 text-slate-300 transition-colors text-left" data-target="quotes">
+                <i class="fa-solid fa-quote-left w-6"></i> Slogan Havuzu <span class="ml-auto bg-airforce-500 text-white text-[10px] px-2 py-0.5 rounded-full">100</span>
+            </button>
+            <button onclick="switchTab('requirements')" class="tab-btn w-full flex items-center p-3 rounded-lg hover:bg-slate-800 text-slate-300 transition-colors text-left" data-target="requirements">
+                <i class="fa-solid fa-shield-halved w-6"></i> Kurallar & Gizlilik
+            </button>
+        </nav>
+
+        <div class="p-4 border-t border-slate-700">
+            <div class="flex items-center space-x-3">
+                <div class="w-10 h-10 rounded-full bg-airforce-500 flex items-center justify-center font-bold">SM</div>
+                <div>
+                    <p class="text-sm font-medium">Semayy</p>
+                    <p class="text-xs text-airforce-300">Creative Lead</p>
+                </div>
+            </div>
+            <div class="flex items-center space-x-3 mt-4">
+                <div class="w-10 h-10 rounded-full bg-slate-600 flex items-center justify-center font-bold">AK</div>
+                <div>
+                    <p class="text-sm font-medium">Akif</p>
+                    <p class="text-xs text-slate-400">Production / Ops</p>
+                </div>
+            </div>
+        </div>
+    </aside>
+
+    <!-- Main Content -->
+    <main class="flex-1 flex flex-col h-full bg-slate-50 relative overflow-y-auto">
+        <!-- Mobile Header -->
+        <header class="md:hidden bg-airforce-dark text-white p-4 flex justify-between items-center sticky top-0 z-30">
+            <h1 class="text-lg font-bold"><i class="fa-solid fa-plane-departure mr-2"></i> HKK Projesi</h1>
+            <button onclick="document.getElementById('mobile-menu').classList.toggle('hidden')" class="text-white">
+                <i class="fa-solid fa-bars text-2xl"></i>
+            </button>
+        </header>
+
+        <!-- Mobile Menu -->
+        <div id="mobile-menu" class="hidden md:hidden bg-slate-900 text-white absolute w-full z-20 top-[60px] border-b border-slate-700 shadow-xl overflow-y-auto max-h-[calc(100vh-60px)]">
+             <button onclick="switchTab('dashboard'); document.getElementById('mobile-menu').classList.add('hidden')" class="w-full p-4 border-b border-slate-800 text-left"><i class="fa-solid fa-chart-pie mr-2"></i> Genel Bakış</button>
+             <button onclick="switchTab('roadmap'); document.getElementById('mobile-menu').classList.add('hidden')" class="w-full p-4 border-b border-slate-800 text-left"><i class="fa-solid fa-route mr-2"></i> Yol Haritası</button>
+             <button onclick="switchTab('design-system'); document.getElementById('mobile-menu').classList.add('hidden')" class="w-full p-4 border-b border-slate-800 text-left"><i class="fa-solid fa-palette mr-2"></i> Marka Kimliği</button>
+             <button onclick="switchTab('asset-tracker'); document.getElementById('mobile-menu').classList.add('hidden')" class="w-full p-4 border-b border-slate-800 text-left"><i class="fa-solid fa-list-check mr-2"></i> Dosya Takibi</button>
+             <button onclick="switchTab('products'); document.getElementById('mobile-menu').classList.add('hidden')" class="w-full p-4 border-b border-slate-800 text-left"><i class="fa-solid fa-box-open mr-2"></i> Üretim & Envanter</button>
+             <button onclick="switchTab('quotes'); document.getElementById('mobile-menu').classList.add('hidden')" class="w-full p-4 border-b border-slate-800 text-left flex justify-between items-center"><span class="flex items-center"><i class="fa-solid fa-quote-left mr-2"></i> Slogan Havuzu</span> <span class="bg-airforce-500 text-xs px-2 rounded-full">100</span></button>
+             <button onclick="switchTab('requirements'); document.getElementById('mobile-menu').classList.add('hidden')" class="w-full p-4 border-b border-slate-800 text-left"><i class="fa-solid fa-shield-halved mr-2"></i> Kurallar</button>
+        </div>
+
+        <div class="p-6 md:p-10 max-w-7xl mx-auto w-full pb-20">
+            
+            <!-- VIEW: DASHBOARD -->
+            <div id="dashboard" class="tab-content active">
+                <div class="flex justify-between items-end mb-8">
+                    <div>
+                        <h2 class="text-3xl font-bold text-slate-800">Proje Özeti</h2>
+                        <p class="text-slate-500 mt-1">Hava Kuvvetleri Komutanlığı Özel Promosyon Seti Üretimi</p>
+                    </div>
+                    <span class="px-4 py-2 rounded-full bg-amber-100 text-amber-800 text-sm font-semibold flex items-center">
+                        <i class="fa-solid fa-spinner fa-spin mr-2"></i> Faz 2: Kreatif Geliştirme
+                    </span>
+                </div>
+
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+                    <div class="bg-white rounded-xl shadow-sm border border-slate-200 p-6 border-l-4 border-l-airforce-500">
+                        <div class="flex justify-between items-start">
+                            <div>
+                                <p class="text-sm text-slate-500 font-medium">Hedef Kitle</p>
+                                <h3 class="text-xl font-bold mt-1 text-slate-800">HK Komutanı (Kadın)</h3>
+                            </div>
+                            <i class="fa-solid fa-star text-airforce-300 text-2xl"></i>
+                        </div>
+                    </div>
+                    <div class="bg-white rounded-xl shadow-sm border border-slate-200 p-6 border-l-4 border-l-emerald-500">
+                        <div class="flex justify-between items-start">
+                            <div>
+                                <p class="text-sm text-slate-500 font-medium">İlk Teslimat / Numune</p>
+                                <h3 class="text-xl font-bold mt-1 text-slate-800">Ramazan Bayramı Sonrası</h3>
+                            </div>
+                            <i class="fa-regular fa-calendar-check text-emerald-400 text-2xl"></i>
+                        </div>
+                    </div>
+                    <div class="bg-white rounded-xl shadow-sm border border-slate-200 p-6 border-l-4 border-l-purple-500">
+                        <div class="flex justify-between items-start">
+                            <div>
+                                <p class="text-sm text-slate-500 font-medium">Toplam Ürün Çeşidi</p>
+                                <h3 class="text-xl font-bold mt-1 text-slate-800">8+ Parça</h3>
+                            </div>
+                            <i class="fa-solid fa-layer-group text-purple-400 text-2xl"></i>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="bg-white rounded-xl shadow-sm border border-slate-200 p-8">
+                    <h3 class="text-lg font-bold mb-4 border-b pb-2">Stratejik Notlar</h3>
+                    <ul class="space-y-4 text-slate-600">
+                        <li class="flex items-start"><i class="fa-solid fa-check text-emerald-500 mt-1 mr-3"></i> <strong>Kutu Standardizasyonu:</strong> Tüm modeller için tasarım aynı kalacak, sadece uçak ismi/görseli değişecek. Bu sayede 1 sene içinde kutu marka yüzü olarak ezberletilecek.</li>
+                        <li class="flex items-start"><i class="fa-solid fa-check text-emerald-500 mt-1 mr-3"></i> <strong>Arşivleme & Süreklilik:</strong> Ciddi bir arşiv oluşturulacak, anlık değil sürekli bir üretim döngüsü hedefleniyor.</li>
+                        <li class="flex items-start"><i class="fa-solid fa-check text-emerald-500 mt-1 mr-3"></i> <strong>İlk Model:</strong> Bıçak izi hazır olan <b>F-16</b> ile başlanacak.</li>
+                    </ul>
+                </div>
+            </div>
+
+            <!-- VIEW: DESIGN SYSTEM -->
+            <div id="design-system" class="tab-content">
+                <!-- İçerik aynı kaldı (Dosya boyutunu optimum tutmak adına önceki cevaptaki HTML) -->
+                <div class="flex justify-between items-end mb-8">
+                    <div>
+                        <h2 class="text-3xl font-bold text-slate-800">Marka Kimliği & Görsel Dil</h2>
+                        <p class="text-slate-500 mt-1">Hava Kuvvetleri konseptine uygun, premium ve tutarlı tasarım standartları.</p>
+                    </div>
+                </div>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-8 mb-8">
+                    <!-- Renk Paleti -->
+                    <div class="bg-white rounded-xl shadow-sm border border-slate-200 p-6">
+                        <h3 class="text-lg font-bold mb-4 border-b pb-2"><i class="fa-solid fa-droplet text-airforce-500 mr-2"></i> Ana Renk Paleti</h3>
+                        <div class="space-y-4">
+                            <div class="flex items-center space-x-4">
+                                <div class="w-16 h-16 rounded-lg bg-[#0f244a] shadow-inner"></div>
+                                <div>
+                                    <p class="font-bold text-slate-800">HKK Lacivert (Premium)</p>
+                                    <p class="text-xs text-slate-500 font-mono">HEX: #0F244A | CMYK: 100, 80, 30, 60</p>
+                                </div>
+                            </div>
+                            <div class="flex items-center space-x-4">
+                                <div class="w-16 h-16 rounded-lg bg-[#94a3b8] shadow-inner"></div>
+                                <div>
+                                    <p class="font-bold text-slate-800">Havacılık Grisi (Çelik/Titanyum)</p>
+                                    <p class="text-xs text-slate-500 font-mono">HEX: #94A3B8 | CMYK: 40, 30, 30, 0</p>
+                                </div>
+                            </div>
+                            <div class="flex items-center space-x-4">
+                                <div class="w-16 h-16 rounded-lg bg-[#d4af37] shadow-inner"></div>
+                                <div>
+                                    <p class="font-bold text-slate-800">Bröve Altını (Vurgu)</p>
+                                    <p class="text-xs text-slate-500 font-mono">HEX: #D4AF37 | CMYK: 15, 30, 80, 10</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <!-- Tipografi -->
+                    <div class="bg-white rounded-xl shadow-sm border border-slate-200 p-6">
+                        <h3 class="text-lg font-bold mb-4 border-b pb-2"><i class="fa-solid fa-font text-airforce-500 mr-2"></i> Tipografi (Yazı Tipleri)</h3>
+                        <div class="space-y-6">
+                            <div>
+                                <p class="text-xs text-slate-500 uppercase tracking-widest mb-1">Başlıklar & Teknik Veriler</p>
+                                <h4 class="text-2xl font-bold font-sans text-slate-800">Inter / Roboto (Sans-Serif)</h4>
+                                <p class="text-sm text-slate-600 mt-2">Modern, okunabilir ve askeri/teknik bir his yaratır. Uçak isimleri ve kutu üstü bilgilendirmelerde kullanılacaktır.</p>
+                            </div>
+                            <div class="pt-4 border-t border-slate-100">
+                                <p class="text-xs text-slate-500 uppercase tracking-widest mb-1">Sloganlar & Alıntılar</p>
+                                <h4 class="text-2xl font-bold font-serif text-slate-800 italic">Merriweather (Serif)</h4>
+                                <p class="text-sm text-slate-600 mt-2">Geleneksel, saygın ve vurucu. Anahtarlık arkasındaki sözler ve komutana özel yazılacak kart notlarında tercih edilmelidir.</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- VIEW: ASSET TRACKER -->
+            <div id="asset-tracker" class="tab-content">
+                <div class="flex justify-between items-end mb-6">
+                    <div>
+                        <h2 class="text-3xl font-bold text-slate-800">Gereksinimler & Dosya Matrisi</h2>
+                        <p class="text-slate-500 mt-1">Hiçbir tasarıma başlanmadan önce Akif'ten/Üreticiden alınması gereken %100 net ölçüler.</p>
+                    </div>
+                </div>
+                <div class="bg-white rounded-xl shadow-sm border border-slate-200 overflow-hidden">
+                    <div class="overflow-x-auto">
+                        <table class="w-full text-left border-collapse">
+                            <thead>
+                                <tr class="bg-slate-800 border-b border-slate-700 text-xs uppercase tracking-wider text-slate-300">
+                                    <th class="p-4 font-semibold">Ürün Kalemi</th>
+                                    <th class="p-4 font-semibold">Bıçak İzi / Ölçü Durumu</th>
+                                    <th class="p-4 font-semibold">Baskı Yöntemi</th>
+                                    <th class="p-4 font-semibold">Tahmini Süre</th>
+                                    <th class="p-4 font-semibold text-center">Kritiklik</th>
+                                </tr>
+                            </thead>
+                            <tbody class="text-sm divide-y divide-slate-100">
+                                <tr class="hover:bg-slate-50">
+                                    <td class="p-4 font-bold text-slate-800"><i class="fa-solid fa-box-open text-airforce-500 w-6"></i> 1. Ana Kutu (Dış)</td>
+                                    <td class="p-4"><span class="bg-emerald-100 text-emerald-700 py-1 px-3 rounded text-xs font-bold border border-emerald-200">F-16 İzi Geldi</span></td>
+                                    <td class="p-4 text-slate-600">Sert Taslama + Ofset</td>
+                                    <td class="p-4 font-mono text-slate-500 text-xs">15-20 Gün</td>
+                                    <td class="p-4 text-center"><span class="text-red-600 font-bold text-xs"><i class="fa-solid fa-fire"></i> ÇOK KRİTİK</span></td>
+                                </tr>
+                                <tr class="hover:bg-slate-50 bg-red-50/30">
+                                    <td class="p-4 font-bold text-slate-800"><i class="fa-solid fa-layer-group text-airforce-500 w-6"></i> 2. Kutu İçi EVA Sünger</td>
+                                    <td class="p-4"><span class="bg-red-100 text-red-700 py-1 px-3 rounded text-xs font-bold border border-red-200">Bekliyor (Yapılamaz)</span></td>
+                                    <td class="p-4 text-slate-600 text-xs">Özel Lazer Kesim</td>
+                                    <td class="p-4 font-mono text-slate-500 text-xs">-</td>
+                                    <td class="p-4 text-center"><span class="text-red-600 font-bold text-xs"><i class="fa-solid fa-triangle-exclamation"></i> DARBOĞAZ</span></td>
+                                </tr>
+                                <tr class="hover:bg-slate-50">
+                                    <td class="p-4 font-bold text-slate-800"><i class="fa-solid fa-mug-hot text-airforce-500 w-6"></i> 3. Kupa (Mug)</td>
+                                    <td class="p-4"><span class="bg-emerald-100 text-emerald-700 py-1 px-3 rounded text-xs font-bold border border-emerald-200">7x17 cm Onaylandı</span></td>
+                                    <td class="p-4 text-slate-600">Sublimasyon / Fırın</td>
+                                    <td class="p-4 font-mono text-slate-500 text-xs">5-7 Gün</td>
+                                    <td class="p-4 text-center"><span class="text-amber-600 font-bold text-xs">YÜKSEK</span></td>
+                                </tr>
+                                <tr class="hover:bg-slate-50">
+                                    <td class="p-4 font-bold text-slate-800"><i class="fa-solid fa-box text-airforce-500 w-6"></i> 4. Kupa Kutusu</td>
+                                    <td class="p-4"><span class="bg-amber-100 text-amber-700 py-1 px-3 rounded text-xs font-bold border border-amber-200">Üreticiden İstenmeli</span></td>
+                                    <td class="p-4 text-slate-600">Ofset / Bristol</td>
+                                    <td class="p-4 font-mono text-slate-500 text-xs">7-10 Gün</td>
+                                    <td class="p-4 text-center"><span class="text-slate-500 font-bold text-xs">NORMAL</span></td>
+                                </tr>
+                                <tr class="hover:bg-slate-50">
+                                    <td class="p-4 font-bold text-slate-800"><i class="fa-solid fa-key text-airforce-500 w-6"></i> 5. Metal Anahtarlık</td>
+                                    <td class="p-4"><span class="bg-amber-100 text-amber-700 py-1 px-3 rounded text-xs font-bold border border-amber-200">Dış Kalıp İzi Lazım</span></td>
+                                    <td class="p-4 text-slate-600">Zamak Döküm + Lazer</td>
+                                    <td class="p-4 font-mono text-slate-500 text-xs">10-15 Gün</td>
+                                    <td class="p-4 text-center"><span class="text-red-600 font-bold text-xs"><i class="fa-solid fa-fire"></i> ÇOK KRİTİK</span></td>
+                                </tr>
+                                <tr class="hover:bg-slate-50">
+                                    <td class="p-4 font-bold text-slate-800"><i class="fa-solid fa-shield-cat text-airforce-500 w-6"></i> 6. PVC Patch (Arma)</td>
+                                    <td class="p-4"><span class="bg-amber-100 text-amber-700 py-1 px-3 rounded text-xs font-bold border border-amber-200">Kesim Ölçüsü Lazım</span></td>
+                                    <td class="p-4 text-slate-600">PVC 3D Döküm</td>
+                                    <td class="p-4 font-mono text-slate-500 text-xs">10-12 Gün</td>
+                                    <td class="p-4 text-center"><span class="text-amber-600 font-bold text-xs">YÜKSEK</span></td>
+                                </tr>
+                                <tr class="hover:bg-slate-50">
+                                    <td class="p-4 font-bold text-slate-800"><i class="fa-solid fa-masks-theater text-airforce-500 w-6"></i> 7. Buff (Boyunluk)</td>
+                                    <td class="p-4"><span class="bg-emerald-100 text-emerald-700 py-1 px-3 rounded text-xs font-bold border border-emerald-200">25x50 cm Onaylandı</span></td>
+                                    <td class="p-4 text-slate-600">Tekstil Sublimasyon</td>
+                                    <td class="p-4 font-mono text-slate-500 text-xs">5-7 Gün</td>
+                                    <td class="p-4 text-center"><span class="text-slate-500 font-bold text-xs">NORMAL</span></td>
+                                </tr>
+                                <tr class="hover:bg-slate-50">
+                                    <td class="p-4 font-bold text-slate-800"><i class="fa-solid fa-computer-mouse text-airforce-500 w-6"></i> 8. Mouse Pad</td>
+                                    <td class="p-4"><span class="bg-amber-100 text-amber-700 py-1 px-3 rounded text-xs font-bold border border-amber-200">Özel Kesim İzi Lazım</span></td>
+                                    <td class="p-4 text-slate-600">Kauçuk Taban + Transfer</td>
+                                    <td class="p-4 font-mono text-slate-500 text-xs">5-7 Gün</td>
+                                    <td class="p-4 text-center"><span class="text-slate-500 font-bold text-xs">NORMAL</span></td>
+                                </tr>
+                                <tr class="hover:bg-slate-50">
+                                    <td class="p-4 font-bold text-slate-800"><i class="fa-solid fa-magnet text-airforce-500 w-6"></i> 9. Magnet</td>
+                                    <td class="p-4"><span class="bg-amber-100 text-amber-700 py-1 px-3 rounded text-xs font-bold border border-amber-200">Bıçak İzi Lazım</span></td>
+                                    <td class="p-4 text-slate-600">UV Baskı + Lazer Kesim</td>
+                                    <td class="p-4 font-mono text-slate-500 text-xs">4-6 Gün</td>
+                                    <td class="p-4 text-center"><span class="text-slate-500 font-bold text-xs">DÜŞÜK</span></td>
+                                </tr>
+                                <tr class="hover:bg-slate-50">
+                                    <td class="p-4 font-bold text-slate-800"><i class="fa-solid fa-bag-shopping text-airforce-500 w-6"></i> 10. Bez Çanta & Şapka</td>
+                                    <td class="p-4"><span class="bg-amber-100 text-amber-700 py-1 px-3 rounded text-xs font-bold border border-amber-200">Baskı/Nakış Alanı Lazım</span></td>
+                                    <td class="p-4 text-slate-600">Serigrafi / 3D Nakış</td>
+                                    <td class="p-4 font-mono text-slate-500 text-xs">7-12 Gün</td>
+                                    <td class="p-4 text-center"><span class="text-slate-500 font-bold text-xs">NORMAL</span></td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                    <div class="bg-slate-50 p-4 border-t border-slate-200 text-sm text-slate-600">
+                        <i class="fa-solid fa-circle-info text-airforce-500 mr-2"></i> <b>Stratejik Uyarı:</b> Üretimdeki darboğaz (bottleneck) <b>Döküm Kalıplarıdır.</b> Tasarım onaylanır onaylanmaz Ofset Kutudan önce Anahtarlık ve Patch kalıbı üretime girmelidir.
+                    </div>
+                </div>
+            </div>
+
+            <!-- VIEW: ROADMAP -->
+            <div id="roadmap" class="tab-content">
+                <div class="flex justify-between items-end mb-6">
+                    <div>
+                        <h2 class="text-3xl font-bold text-slate-800">Kusursuz Operasyon Stratejisi</h2>
+                        <p class="text-slate-500 mt-1">Tasarımdan teslimata kadar hatasız ilerleyecek, komutanlık seviyesindeki üretim protokülümüz.</p>
+                    </div>
+                </div>
+                
+                <div class="relative border-l-4 border-slate-300 ml-4 md:ml-8 space-y-10 pb-10 mt-8">
+                    
+                    <!-- Phase 1 -->
+                    <div class="relative">
+                        <div class="absolute -left-3.5 mt-1.5 w-6 h-6 rounded-full bg-slate-400 border-4 border-white shadow"></div>
+                        <div class="pl-8">
+                            <span class="text-xs font-bold tracking-widest text-slate-400 uppercase">Aşama 1 (Tamamlanıyor)</span>
+                            <h3 class="text-xl font-bold text-slate-800 mt-1">Teknik Sınırların Belirlenmesi (Keşif)</h3>
+                            <div class="mt-3 bg-white p-5 rounded-lg shadow-sm border border-slate-200">
+                                <p class="text-sm text-slate-600 mb-4">Bir tasarıma başlamadan önce çerçevenin bilinmesi şarttır. Hatalı milimetrik hesaplama binlerce liralık üretimi çöpe atar.</p>
+                                <ul class="space-y-3">
+                                    <li class="flex items-start text-slate-700 text-sm"><i class="fa-solid fa-check text-emerald-500 mt-1 mr-3"></i> <b>(Tamamlandı)</b> Gizlilik ve proje ekibinin hizalanması.</li>
+                                    <li class="flex items-start text-slate-700 text-sm"><i class="fa-regular fa-clock text-amber-500 mt-1 mr-3"></i> <b>(Bekleniyor)</b> Matbaa ve Üreticilerden 10 adet ürünün eksiksiz Bıçak İzi / Kalıp Ölçüsü dosyalarının (PDF/Ai) Akif tarafından temin edilmesi.</li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Phase 2 -->
+                    <div class="relative">
+                        <div class="absolute -left-3.5 mt-1.5 w-6 h-6 rounded-full bg-airforce-500 border-4 border-white shadow"></div>
+                        <div class="pl-8">
+                            <span class="text-xs font-bold tracking-widest text-airforce-500 uppercase">Aşama 2 (Güncel Odak)</span>
+                            <h3 class="text-xl font-bold text-airforce-900 mt-1">"WOW" Etkisi ve Prototipleme (Bayram Öncesi)</h3>
+                            <div class="mt-3 bg-white p-5 rounded-lg shadow-sm border border-airforce-200">
+                                <p class="text-sm text-slate-600 mb-4">Komutana sunulacak vizyonun hazırlanması. Maliyetli fiziksel seri üretimlere girmeden önce yüksek kaliteli dijital onay alınması.</p>
+                                <ul class="space-y-3">
+                                    <li class="flex items-start text-slate-700 text-sm"><input type="checkbox" class="mt-1 mr-3 w-4 h-4 text-airforce-500 rounded"> Ana Kutu (F-16) Premium Tasarımının yapılması.</li>
+                                    <li class="flex items-start text-slate-700 text-sm"><input type="checkbox" class="mt-1 mr-3 w-4 h-4 text-airforce-500 rounded"> Kupa (Mug), Anahtarlık ve Buff tasarımlarının tamamlanması.</li>
+                                    <li class="flex items-start text-slate-700 text-sm"><input type="checkbox" class="mt-1 mr-3 w-4 h-4 text-airforce-500 rounded"> <b>Hiper-Gerçekçi 3D Mockup Sunumu:</b> Akif'in komutana yapacağı sunum için tasarımların gerçekçi ışık/gölgelerle 3D modellenip sunum dosyası haline getirilmesi.</li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Phase 3 -->
+                    <div class="relative">
+                        <div class="absolute -left-3.5 mt-1.5 w-6 h-6 rounded-full bg-slate-300 border-4 border-white shadow"></div>
+                        <div class="pl-8">
+                            <span class="text-xs font-bold tracking-widest text-slate-500 uppercase">Aşama 3</span>
+                            <h3 class="text-xl font-bold text-slate-800 mt-1">Numune ve Darboğaz Çözümü (Kalıplar)</h3>
+                            <div class="mt-3 bg-white p-5 rounded-lg shadow-sm border border-slate-200">
+                                <p class="text-sm text-slate-600 mb-4">Onay alındığı saniye başlatılması gereken üretim kalemleri.</p>
+                                <ul class="space-y-3">
+                                    <li class="flex items-start text-slate-700 text-sm"><i class="fa-solid fa-angles-right text-slate-400 mt-1 mr-3"></i> Zaman alan <b>Zamak Döküm Anahtarlık</b> ve <b>PVC Patch</b> siparişlerinin geçilmesi (Süre: 15 Gün).</li>
+                                    <li class="flex items-start text-slate-700 text-sm"><i class="fa-solid fa-angles-right text-slate-400 mt-1 mr-3"></i> Kupa (Mug) için fiziksel fırın baskı / sublimasyon test numunelerinin çıkarılması. Kalıcılık testi.</li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Phase 4 -->
+                    <div class="relative">
+                        <div class="absolute -left-3.5 mt-1.5 w-6 h-6 rounded-full bg-slate-300 border-4 border-white shadow"></div>
+                        <div class="pl-8">
+                            <span class="text-xs font-bold tracking-widest text-slate-500 uppercase">Aşama 4</span>
+                            <h3 class="text-xl font-bold text-slate-800 mt-1">Ofset Üretim ve Kritik "Tolerans" Testi</h3>
+                            <div class="mt-3 bg-white p-5 rounded-lg shadow-sm border border-red-100 border-l-4 border-l-red-500">
+                                <p class="text-sm text-slate-600 mb-4">Sürecin en çok hata yapılan evresi. Tüm fiziksel ürünler (Maket, Kupa, Anahtarlık) masaya gelmeden bu faza geçilmemeli.</p>
+                                <ul class="space-y-3">
+                                    <li class="flex items-start text-slate-700 text-sm"><i class="fa-solid fa-triangle-exclamation text-red-500 mt-1 mr-3"></i> <b>Kutu İçi Sünger Kesimi:</b> Fiziksel ürünlerin yükseklik ve genişlik toleransları cetvelle değil, ürün süngere basılarak test edilecek. Lazer kesim onayı ancak ürünler yuvaya "cukk" diye oturduğunda verilecek.</li>
+                                    <li class="flex items-start text-slate-700 text-sm"><i class="fa-solid fa-angles-right text-slate-400 mt-1 mr-3"></i> Dış ofset kutunun seri üretimine geçilmesi ve taslanması.</li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Phase 5 -->
+                    <div class="relative">
+                        <div class="absolute -left-3.5 mt-1.5 w-6 h-6 rounded-full bg-slate-300 border-4 border-white shadow"></div>
+                        <div class="pl-8">
+                            <span class="text-xs font-bold tracking-widest text-slate-500 uppercase">Aşama 5</span>
+                            <h3 class="text-xl font-bold text-slate-800 mt-1">Kalite Kontrol (QC), Montaj ve Genişleme</h3>
+                            <div class="mt-3 bg-white p-5 rounded-lg shadow-sm border border-slate-200">
+                                <ul class="space-y-3">
+                                    <li class="flex items-start text-slate-700 text-sm"><i class="fa-solid fa-angles-right text-slate-400 mt-1 mr-3"></i> Tüm bileşenlerin kutuya kusursuz yerleştirilmesi (Assembly).</li>
+                                    <li class="flex items-start text-slate-700 text-sm"><i class="fa-solid fa-angles-right text-slate-400 mt-1 mr-3"></i> Hava Kuvvetleri Komutanlığına gizlilik protokolü ile ilk sevkiyatın yapılması.</li>
+                                    <li class="flex items-start text-slate-700 text-sm"><i class="fa-solid fa-angles-right text-slate-400 mt-1 mr-3"></i> Oturan F-16 konseptinin arşivlenip F-4, Akıncı ve Kızılelma gibi diğer modellere uyarlanma sürecinin başlaması.</li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+
+            <!-- VIEW: PRODUCTS -->
+            <div id="products" class="tab-content">
+                <div class="flex flex-col md:flex-row justify-between items-start md:items-center mb-6 md:mb-8 gap-2">
+                    <div>
+                        <h2 class="text-2xl md:text-3xl font-bold text-slate-800">Üretim Kalite Standartları & Envanter</h2>
+                        <p class="text-sm md:text-base text-slate-500 mt-1">Tam set içeriğindeki 10 farklı ürünün malzeme, baskı ve teknik uygulama standartları.</p>
+                    </div>
+                </div>
+                
+                <!-- Responsive Grid: 1 column on mobile, 2 on tablets, 3 on desktops -->
+                <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-6">
+                    
+                    <!-- Item 1: Ana Kutu -->
+                    <div class="bg-white rounded-xl shadow-sm border border-slate-200 overflow-hidden flex flex-col h-full">
+                        <div class="bg-airforce-900 h-20 md:h-24 flex items-center justify-center text-white relative shrink-0">
+                            <i class="fa-solid fa-box-open text-3xl md:text-4xl opacity-50"></i>
+                            <span class="absolute top-2 right-2 bg-red-500 text-[10px] uppercase tracking-widest px-2 py-1 rounded">1. Ana Kalem</span>
+                        </div>
+                        <div class="p-4 md:p-5 flex-1 flex flex-col">
+                            <h3 class="text-base md:text-lg font-bold text-slate-800 mb-1">Dış Kutu (Premium)</h3>
+                            <ul class="text-xs md:text-sm space-y-2 text-slate-700 mt-2 md:mt-3 border-t pt-2 md:pt-3 flex-1">
+                                <li><b>Malzeme:</b> Sert mukavva üzeri taslama. İnce bristol KESİNLİKLE kullanılmamalı.</li>
+                                <li><b>Baskı/Yüzey:</b> Mat selefon üzeri kısmi (lokal) lak uygulaması (Uçak görseline vurgu).</li>
+                                <li><b>Detay:</b> Kapak kapanma toleransı mükemmel olmalı, kutu potluk yapmamalı.</li>
+                            </ul>
+                        </div>
+                    </div>
+
+                    <!-- Item 2: Kutu İçi Sünger -->
+                    <div class="bg-white rounded-xl shadow-sm border border-red-200 overflow-hidden flex flex-col h-full relative">
+                        <div class="bg-red-50 h-20 md:h-24 flex items-center justify-center text-red-400 shrink-0 border-b border-red-100">
+                            <i class="fa-solid fa-layer-group text-3xl md:text-4xl"></i>
+                            <span class="absolute top-2 right-2 bg-red-100 text-red-700 text-[10px] uppercase tracking-widest px-2 py-1 rounded border border-red-200">2. Darboğaz</span>
+                        </div>
+                        <div class="p-4 md:p-5 flex-1 flex flex-col">
+                            <h3 class="text-base md:text-lg font-bold text-slate-800 mb-1">Kutu İçi EVA Sünger</h3>
+                            <ul class="text-xs md:text-sm space-y-2 text-slate-700 mt-2 md:mt-3 border-t pt-2 md:pt-3 flex-1">
+                                <li><b>Malzeme:</b> Yüksek yoğunluklu gri/siyah EVA sünger. (Kopma/dökülme yapmayan kalite).</li>
+                                <li><b>Uygulama:</b> Lazer kesim veya su jeti (Waterjet).</li>
+                                <li><b>Kritik Kural:</b> Fiziksel ürünler (Maket, Patch vs.) masaya gelmeden kalıp kesime GİRİLMEYECEK.</li>
+                            </ul>
+                        </div>
+                    </div>
+
+                    <!-- Item 3: Mug -->
+                    <div class="bg-white rounded-xl shadow-sm border border-slate-200 overflow-hidden flex flex-col h-full">
+                        <div class="bg-slate-200 h-20 md:h-24 flex items-center justify-center text-slate-500 shrink-0">
+                            <i class="fa-solid fa-mug-hot text-3xl md:text-4xl"></i>
+                        </div>
+                        <div class="p-4 md:p-5 flex-1 flex flex-col">
+                            <h3 class="text-base md:text-lg font-bold text-slate-800 mb-1">3. Kupa (Mug)</h3>
+                            <ul class="text-xs md:text-sm space-y-2 text-slate-700 mt-2 md:mt-3 border-t pt-2 md:pt-3 flex-1">
+                                <li><b>Malzeme:</b> A Kalite porselen/seramik kupa. (Lekesiz yüzey).</li>
+                                <li><b>Ölçü Alanı:</b> Maksimum 7x17 cm sargı baskı.</li>
+                                <li><b>Baskı:</b> Sublimasyon yerine ömür boyu kalıcılık için fırın (Decal) transfer baskı önerilir. (Bulaşık makinesine dayanıklı olmalı).</li>
+                            </ul>
+                        </div>
+                    </div>
+
+                    <!-- Item 4: Kupa Kutusu -->
+                    <div class="bg-white rounded-xl shadow-sm border border-slate-200 overflow-hidden flex flex-col h-full">
+                        <div class="bg-slate-200 h-20 md:h-24 flex items-center justify-center text-slate-500 shrink-0">
+                            <i class="fa-solid fa-box text-3xl md:text-4xl"></i>
+                        </div>
+                        <div class="p-4 md:p-5 flex-1 flex flex-col">
+                            <h3 class="text-base md:text-lg font-bold text-slate-800 mb-1">4. Kupa Kutusu</h3>
+                            <ul class="text-xs md:text-sm space-y-2 text-slate-700 mt-2 md:mt-3 border-t pt-2 md:pt-3 flex-1">
+                                <li><b>Malzeme:</b> İçi mikro dopel (dalgalı koruyucu), dışı sıvama bristol veya krome karton.</li>
+                                <li><b>Baskı:</b> Ana konsept tasarımıyla entegre renk ve tipografi. Ofset baskı.</li>
+                                <li><b>İşlev:</b> Taşıma sırasında kupanın kırılmasını %100 önleyecek yapı.</li>
+                            </ul>
+                        </div>
+                    </div>
+
+                    <!-- Item 5: Anahtarlık -->
+                    <div class="bg-white rounded-xl shadow-sm border border-slate-200 overflow-hidden flex flex-col h-full relative">
+                        <div class="bg-slate-800 h-20 md:h-24 flex items-center justify-center text-metal-light shrink-0">
+                            <i class="fa-solid fa-key text-3xl md:text-4xl"></i>
+                            <span class="absolute top-2 right-2 bg-slate-700 text-metal-light text-[10px] uppercase tracking-widest px-2 py-1 rounded">5. Kritik</span>
+                        </div>
+                        <div class="p-4 md:p-5 flex-1 flex flex-col">
+                            <h3 class="text-base md:text-lg font-bold text-slate-800 mb-1">Metal Anahtarlık</h3>
+                            <ul class="text-xs md:text-sm space-y-2 text-slate-700 mt-2 md:mt-3 border-t pt-2 md:pt-3 flex-1">
+                                <li><b>Malzeme:</b> Tok hissiyatlı Zamak Döküm. (Basit alüminyum plaka yasak).</li>
+                                <li><b>Yüzey:</b> Fırçalanmış antik gümüş (çizilmeye dayanıklı).</li>
+                                <li><b>Uygulama:</b> Ön yüzde Hava Kuvvetleri / Pilot Brövesi 3D kabartma (rölyef). Arka yüzde derin lazer kazıma slogan ve askı aparatı.</li>
+                            </ul>
+                        </div>
+                    </div>
+
+                    <!-- Item 6: PVC Patch -->
+                    <div class="bg-white rounded-xl shadow-sm border border-slate-200 overflow-hidden flex flex-col h-full">
+                        <div class="bg-airforce-700 h-20 md:h-24 flex items-center justify-center text-white shrink-0">
+                            <i class="fa-solid fa-shield-cat text-3xl md:text-4xl"></i>
+                        </div>
+                        <div class="p-4 md:p-5 flex-1 flex flex-col">
+                            <h3 class="text-base md:text-lg font-bold text-slate-800 mb-1">6. PVC Patch (Arma)</h3>
+                            <ul class="text-xs md:text-sm space-y-2 text-slate-700 mt-2 md:mt-3 border-t pt-2 md:pt-3 flex-1">
+                                <li><b>Malzeme:</b> Esnek, kokusuz, 3D döküm mikro-enjeksiyon PVC (Kauçuk).</li>
+                                <li><b>Arka Yüzey:</b> Dayanıklı endüstriyel cırt cırt (Velcro hook) dikili.</li>
+                                <li><b>Renkler:</b> Askeri standartlara uygun pantone kodları veya taktik (low-vis) toprak tonları.</li>
+                            </ul>
+                        </div>
+                    </div>
+
+                    <!-- Item 7: Buff -->
+                    <div class="bg-white rounded-xl shadow-sm border border-slate-200 overflow-hidden flex flex-col h-full">
+                        <div class="bg-slate-200 h-20 md:h-24 flex items-center justify-center text-slate-500 shrink-0">
+                            <i class="fa-solid fa-masks-theater text-3xl md:text-4xl"></i>
+                        </div>
+                        <div class="p-4 md:p-5 flex-1 flex flex-col">
+                            <h3 class="text-base md:text-lg font-bold text-slate-800 mb-1">7. Buff (Boyunluk)</h3>
+                            <ul class="text-xs md:text-sm space-y-2 text-slate-700 mt-2 md:mt-3 border-t pt-2 md:pt-3 flex-1">
+                                <li><b>Malzeme:</b> Microfiber polyester, nefes alabilen, ter emici esnek kumaş.</li>
+                                <li><b>Ölçü/Baskı:</b> ~25x50 cm. Dikişsiz (seamless) boru dokuma.</li>
+                                <li><b>Tasarım:</b> Kesintisiz pattern. Renk solması yapmayan tekstil sublimasyon.</li>
+                            </ul>
+                        </div>
+                    </div>
+
+                    <!-- Item 8: Mouse Pad -->
+                    <div class="bg-white rounded-xl shadow-sm border border-slate-200 overflow-hidden flex flex-col h-full">
+                        <div class="bg-slate-200 h-20 md:h-24 flex items-center justify-center text-slate-500 shrink-0">
+                            <i class="fa-solid fa-computer-mouse text-3xl md:text-4xl"></i>
+                        </div>
+                        <div class="p-4 md:p-5 flex-1 flex flex-col">
+                            <h3 class="text-base md:text-lg font-bold text-slate-800 mb-1">8. Mouse Pad</h3>
+                            <ul class="text-xs md:text-sm space-y-2 text-slate-700 mt-2 md:mt-3 border-t pt-2 md:pt-3 flex-1">
+                                <li><b>Malzeme:</b> Altı kaymaz doğal kauçuk, üstü yüksek hız-kontrol sunan pürüzsüz kumaş.</li>
+                                <li><b>Kenarlar:</b> Lazer kesim veya atma yapmayan overlok dikiş.</li>
+                                <li><b>Baskı:</b> Tasarımın detaylarını net gösterecek canlı transfer baskı.</li>
+                            </ul>
+                        </div>
+                    </div>
+
+                    <!-- Item 9: Magnet -->
+                    <div class="bg-white rounded-xl shadow-sm border border-slate-200 overflow-hidden flex flex-col h-full">
+                        <div class="bg-slate-200 h-20 md:h-24 flex items-center justify-center text-slate-500 shrink-0">
+                            <i class="fa-solid fa-magnet text-3xl md:text-4xl"></i>
+                        </div>
+                        <div class="p-4 md:p-5 flex-1 flex flex-col">
+                            <h3 class="text-base md:text-lg font-bold text-slate-800 mb-1">9. Metal/Ahşap Magnet</h3>
+                            <ul class="text-xs md:text-sm space-y-2 text-slate-700 mt-2 md:mt-3 border-t pt-2 md:pt-3 flex-1">
+                                <li><b>Malzeme:</b> Kalın tabakalı magnet, üzerine bristol sıvama veya ince ahşap/metal plaka üzeri UV.</li>
+                                <li><b>Uygulama:</b> Özel lazer kesim izi ile uçağın veya logonun şeklini alan (die-cut) hatlar.</li>
+                            </ul>
+                        </div>
+                    </div>
+
+                    <!-- Item 10: Çanta & Şapka -->
+                    <div class="bg-white rounded-xl shadow-sm border border-slate-200 overflow-hidden flex flex-col h-full">
+                        <div class="bg-slate-200 h-20 md:h-24 flex items-center justify-center text-slate-500 shrink-0">
+                            <i class="fa-solid fa-bag-shopping text-3xl md:text-4xl"></i>
+                        </div>
+                        <div class="p-4 md:p-5 flex-1 flex flex-col">
+                            <h3 class="text-base md:text-lg font-bold text-slate-800 mb-1">10. Bez Çanta & Şapka</h3>
+                            <ul class="text-xs md:text-sm space-y-2 text-slate-700 mt-2 md:mt-3 border-t pt-2 md:pt-3 flex-1">
+                                <li><b>Çanta:</b> Min. 140gr %100 pamuklu ham bez (Gabardin tercih sebebi). Temiz dikim, serigrafi veya DTF baskı.</li>
+                                <li><b>Şapka:</b> 6 panelli taktik/spor şapka. Metal tokalı ayar. Ön panele 3D kalın nakış (Bröve/Logo).</li>
+                            </ul>
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+
+            <!-- VIEW: QUOTES (100+) -->
+            <div id="quotes" class="tab-content">
+                <div class="flex flex-col md:flex-row justify-between items-start md:items-end mb-8 gap-4">
+                    <div>
+                        <h2 class="text-3xl font-bold text-slate-800">Slogan Havuzu <span class="text-lg text-airforce-500 bg-airforce-100 px-3 py-1 rounded-full ml-2">100 Adet</span></h2>
+                        <p class="text-slate-500 mt-2 max-w-2xl">Anahtarlık arkası ve diğer kurumsal baskılar için kategorize edilmiş, kopyalamaya hazır stratejik havacılık metinleri. <b>(Kopyalamak için kartın üzerine tıklayın)</b></p>
+                    </div>
+                </div>
+
+                <!-- Dynamic Container for Quotes -->
+                <div id="quotes-container" class="space-y-12">
+                    <!-- JS will populate this area -->
+                </div>
+            </div>
+
+            <!-- VIEW: REQUIREMENTS -->
+            <div id="requirements" class="tab-content">
+                 <div class="max-w-3xl">
+                    <h2 class="text-3xl font-bold text-slate-800 mb-2">Kurallar ve Tasarım Gereklilikleri</h2>
+                    <p class="text-slate-500 mb-8">Hava Kuvvetleri Komutanlığı standartlarına uygunluk ve teknik detaylar.</p>
+                    <div class="space-y-6">
+                        <div class="bg-red-50 border-l-4 border-red-500 p-5 rounded-r-lg">
+                            <h3 class="text-red-800 font-bold text-lg mb-2"><i class="fa-solid fa-user-secret mr-2"></i> 1. Gizlilik ve İletişim (Mecburi)</h3>
+                            <p class="text-red-700 text-sm">Hedef büyük ve Hava Kuvvetleri Komutanına (Kadın Komutan) çıkılacağı için tüm süreçlerde tam bir <b>Gizlilik Sözleşmesi (NDA)</b> gereklidir.</p>
+                        </div>
+                    </div>
+                 </div>
+            </div>
+
+        </div>
+    </main>
+
+    <!-- Toast Notification -->
+    <div id="toast"><i class="fa-solid fa-check-circle mr-2"></i> Slogan panoya kopyalandı!</div>
+
+    <script>
+        // Tab Switching Logic
+        function switchTab(tabId) {
+            document.querySelectorAll('.tab-btn').forEach(btn => {
+                if(btn.dataset.target === tabId) {
+                    btn.classList.add('bg-airforce-700', 'text-white');
+                    btn.classList.remove('hover:bg-slate-800', 'text-slate-300');
+                } else {
+                    btn.classList.remove('bg-airforce-700', 'text-white');
+                    btn.classList.add('hover:bg-slate-800', 'text-slate-300');
+                }
+            });
+
+            document.querySelectorAll('.tab-content').forEach(content => {
+                content.classList.remove('active');
+            });
+            document.getElementById(tabId).classList.add('active');
+        }
+
+        // 100 Quotes Data Structure
+        const quotesData = [
+            {
+                category: "Klasikler ve Aidiyet",
+                icon: "fa-star",
+                quotes: [
+                    "Söz konusu vatansa gerisi teferruattır.",
+                    "İstikbal göklerdedir, gökler bizimdir.",
+                    "Geleceğin kanatları, Türk’ün imzası.",
+                    "Biz varsak tereddüt susar kararlılık konuşur.",
+                    "Gökyüzü benim yüzüm, İstikbal benim özümdür.",
+                    "Gökyüzünde sözümüz var.",
+                    "Tarihi yerde yazdık geleceği gökyüzünde çiziyoruz.",
+                    "Gök bükülmedikçe Türk’ün kanadı kırılmaz.",
+                    "Gök Vatanın çelik pençesiyiz.",
+                    "Işığın bile giremediği yere ay yıldızın gölgesi düşer.",
+                    "Bayrağın dalgalandığı her irtifa bizimdir.",
+                    "Göklerde çizdiğimiz sınır, kalplerde vatan aşkıdır.",
+                    "Mavilikler ay yıldıza emanet.",
+                    "Sınırımız gökyüzünün bittiği yerdir.",
+                    "Çelik kanatlarda taşınan bir milletin duasıdır.",
+                    "Al bayrağı bulutların ötesine taşıyanlarız.",
+                    "Gök Vatan, çelik kanatlarımızın altındadır.",
+                    "Kokpitte atan tek yürek, seksen beş milyonun kalbidir.",
+                    "Ecdadın duası, geleceğin teminatıyız.",
+                    "Yüzyıllık Cumhuriyetin, çelik kanatlı bekçileri."
+                ]
+            },
+            {
+                category: "Güç ve Caydırıcılık",
+                icon: "fa-bolt",
+                quotes: [
+                    "Biz havalandığımızda yeryüzü nefesini tutar.",
+                    "Kaçabilirsin ama saklanamazsın.",
+                    "Hedefteysen vadesi dolmuş bir ömürsün.",
+                    "Gürültümüz gelmeden hükmümüz ulaşır.",
+                    "Sesten hızlı, namludan keskiniz.",
+                    "Zamanın bittiği yerde hızımız başlar.",
+                    "Bizim olduğumuz göklerde düşmana yer yoktur.",
+                    "Radarda bir an, hafızalarda bir ömür.",
+                    "Kanatlarımız rüzgarı, füzelerimiz kaderi keser.",
+                    "Göğü yaran çelik, düşmanı yıkan inanç.",
+                    "Bulutları delip geçen bir fırtınayız.",
+                    "Sessiz başlar, gök gürültüsüyle biteriz.",
+                    "Göklerin hakimi, düşmanın kabusuyuz.",
+                    "Avcıların en tepesinde, şahinlerin diyarındayız.",
+                    "Kanat çırptığımızda tarih yeniden yazılır.",
+                    "Gökyüzüne kilitli, hedefe mühürlüyüz.",
+                    "İrtifaımız düşmanın ufkunu aşar.",
+                    "Gözden kaybolduğumuzda efsane başlar.",
+                    "Bizi gördüğünde artık çok geçtir.",
+                    "Ufkun ötesinden gelen kesin hüküm.",
+                    "Gölgesiyle güven, sesiyle korku verenleriz.",
+                    "Bizim için imkansız, sadece bir irtifa meselesidir.",
+                    "Bulutların üstünde bir vatan var, bekçisi biziz.",
+                    "Yükseklerde sadece rüzgar değil, Türk'ün nefesi eser.",
+                    "Türk'ün kudretini göklerden dünyaya haykırıyoruz."
+                ]
+            },
+            {
+                category: "Cesaret ve Havacılık Ruhu",
+                icon: "fa-fire",
+                quotes: [
+                    "Yerçekimi bir efsanedir.",
+                    "Cesaretin kanatları.",
+                    "Gök çökmedikçe yerde diz çökmeyiz.",
+                    "Gökyüzü mazeret kabul etmez.",
+                    "Çelikten sinirler, jet motorlu yürekler.",
+                    "Ölümle yaşam arasındaki o ince çizgide dans edenleriz.",
+                    "Korku yeryüzünde kaldı, biz göklerdeyiz.",
+                    "Damarlarımızda asil kan, motorumuzda jet yakıtı.",
+                    "Göklerde doğduk, bulutlarda yaşarız.",
+                    "Rüzgara karşı değil, rüzgarla beraber esenleriz.",
+                    "G-kuvveti bedenimizi, vatan sevgisi ruhumuzu ezer.",
+                    "Kanatsız doğduk ama uçmayı öğrendik.",
+                    "Gökyüzüne sığmayan dev yürekleriz.",
+                    "Savaş pilotu olmak bir meslek değil, bir varoluş biçimidir.",
+                    "Kartalların uçmaya korktuğu yerlerde biz varız.",
+                    "Yeryüzünün fani dertleri bulutların altında kalır.",
+                    "Göklerde yankılanan Türk'ün şanlı sesiyiz.",
+                    "Her kalkış bir yemin, her iniş bir şükürdür.",
+                    "İstikbalin asil mimarlarıyız.",
+                    "Göklerden gelen bir karar vardır, uygulayıcısı biziz.",
+                    "Vecihi'nin cesareti, Sabiha'nın inancıyla...",
+                    "Kanatlarımızda tarih, ufkumuzda gelecek var.",
+                    "Çelik kanatlı akıncılarız.",
+                    "Gökyüzünde atılan her imza, Türk'ün mührüdür.",
+                    "Göklerde kurduğumuz hakimiyet, ebediyetin teminatıdır.",
+                    "Dün at sırtında, bugün jet kokpitinde.",
+                    "Gök Vatanın isimsiz kahramanları.",
+                    "Gökyüzünü kızıla boyayan şanlı destanımızdır.",
+                    "Çelikten kartallar, tunçtan yürekler.",
+                    "Asumanın yılmaz savunucuları."
+                ]
+            },
+            {
+                category: "Kısa ve Taktik (Buff & Anahtarlık İçin)",
+                icon: "fa-crosshairs",
+                quotes: [
+                    "Gök bizim, uzay bizim!",
+                    "Hedef kilitlendi.",
+                    "Ufkun ötesine.",
+                    "Asla ıskalama.",
+                    "Rüzgarın çocukları.",
+                    "Ölümcül zarafet.",
+                    "Çelik ufuklar.",
+                    "Göğün muhafızları.",
+                    "Kanatlı asalet.",
+                    "Yüksek ve yenilmez.",
+                    "Sesten öteye.",
+                    "Göklerin efendisi.",
+                    "Bulutları delen güç.",
+                    "Son sözü biz söyleriz.",
+                    "Görünmez, duyulmaz, affetmez.",
+                    "Çelik kanat, altın yürek.",
+                    "Sınır tanımayan kanatlar.",
+                    "Vatan için, daima yukarı!",
+                    "Mavi sonsuzluk.",
+                    "Keskin gözler, çelik pençeler.",
+                    "Kusursuz uçuş, mutlak zafer.",
+                    "Göğü yırtanlar.",
+                    "Efsaneler yüksekten uçar.",
+                    "Göklerin fatihi.",
+                    "Sonsuz mavilik, mutlak güç."
+                ]
+            }
+        ];
+
+        // Copy Function
+        function copyToClipboard(text) {
+            const textArea = document.createElement("textarea");
+            textArea.value = text.replace(/"/g, ''); // Tırnak işaretleri olmadan kopyala
+            document.body.appendChild(textArea);
+            textArea.select();
+            try {
+                document.execCommand('copy');
+                showToast();
+            } catch (err) {
+                console.error('Kopyalama başarısız!', err);
+            }
+            document.body.removeChild(textArea);
+        }
+
+        function showToast() {
+            const toast = document.getElementById("toast");
+            toast.className = "show";
+            setTimeout(function(){ toast.className = toast.className.replace("show", ""); }, 3000);
+        }
+
+        // Render Quotes
+        function renderQuotes() {
+            const container = document.getElementById('quotes-container');
+            let html = '';
+
+            const styles = [
+                "bg-white border-slate-200 text-slate-700",
+                "bg-airforce-900 border-airforce-700 text-white",
+                "bg-slate-800 border-slate-700 text-slate-100"
+            ];
+
+            quotesData.forEach(section => {
+                html += `
+                    <div>
+                        <h3 class="text-xl font-bold text-slate-800 mb-4 border-b border-slate-200 pb-2 flex items-center">
+                            <i class="fa-solid ${section.icon} text-airforce-500 mr-3"></i> ${section.category} 
+                            <span class="ml-2 text-sm font-normal text-slate-500">(${section.quotes.length})</span>
+                        </h3>
+                        <div class="columns-1 md:columns-2 lg:columns-3 gap-6 space-y-6">
+                `;
+                
+                section.quotes.forEach((quote, index) => {
+                    // Randomize visual style a bit for a dynamic moodboard feel
+                    const styleClass = styles[index % styles.length];
+                    const iconColor = styleClass.includes('bg-white') ? 'text-airforce-100' : 'text-slate-600';
+                    const goldText = styleClass.includes('bg-airforce-900') ? 'text-gold' : '';
+
+                    html += `
+                        <div onclick='copyToClipboard("${quote}")' class="quote-card p-6 rounded-lg shadow-sm border relative break-inside-avoid ${styleClass}">
+                            <i class="fa-solid fa-quote-left ${iconColor} text-4xl absolute top-4 left-4 z-0 opacity-50"></i>
+                            <p class="relative z-10 font-serif italic text-lg text-center mt-4 ${goldText}">"${quote}"</p>
+                            
+                            <!-- Hover Copy Overlay -->
+                            <div class="copy-overlay absolute inset-0 bg-airforce-500/90 rounded-lg flex flex-col items-center justify-center text-white backdrop-blur-sm">
+                                <i class="fa-solid fa-copy text-2xl mb-2"></i>
+                                <span class="font-bold text-sm tracking-widest uppercase">Kopyala</span>
+                            </div>
+                        </div>
+                    `;
+                });
+
+                html += `</div></div>`;
+            });
+
+            container.innerHTML = html;
+        }
+
+        // Initialize
+        document.addEventListener('DOMContentLoaded', () => {
+            renderQuotes();
+        });
+    </script>
+</body>
+</html>
